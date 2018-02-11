@@ -1,5 +1,8 @@
 // xxHash 32/64 - C++14 constexpr version.
-
+//
+// Copyright(c) 2018, YOSHIDA Masahiro
+// BSD 2-Clause License
+//
 // reference: https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft)
 
 #pragma once
