@@ -11,26 +11,36 @@ ref. [xxHash-specification (draft)](https://github.com/Cyan4973/xxHash/wiki/xxHa
 ### simple
 
 ```C++:simple.cpp
+#include "xxhash_cx.h"
+
+void func()
 {
   xxhash::hash<32>::hash_type h32 = xxhash::xxh32(data, bytes, seed);
   xxhash::hash<64>::hash_type h64 = xxhash::xxh64(data, bytes, seed);
+  // ...
 }
 ```
 
 ### user defined literal.
 
 ```C++:user_literals.cpp
+#include "xxhash_cx.h"
+
+void func()
 {
   using xxhash::operator""_xxh32;
   using xxhash::operator""_xxh64;
 
   xxhash::hash<32>::hash_type h32 = "text-hogehoge"_xx32;
   xxhash::hash<64>::hash_type h64 = "text-hogehoge"_xx64;
+  // ...
 }
 ```
 ### user defined literal & MACRO string.
 
 ```C++:user_literals_macro.cpp
+#include "xxhash_cx.h"
+
 #define	STR_XXH32_(s)	s ## _xxh32
 #define	STR_XXH64_(s)	s ## _xxh64
 #define	STR_XXH32(s)	STR_XXH32_(s)
@@ -40,9 +50,11 @@ ref. [xxHash-specification (draft)](https://github.com/Cyan4973/xxHash/wiki/xxHa
 
 using xxhash::operator""_xxh32;
 using xxhash::operator""_xxh64;
+void func()
 {
   const xxhash::hash<32>::hash_type cx_h = STR_XXH32(STR_HOGE);
   const xxhash::hash<64>::hash_type cx_h = STR_XXH64(STR_HOGE);
+  // ...
 }
 ```
 
@@ -51,8 +63,11 @@ using xxhash::operator""_xxh64;
 ```C++:user_literals_seed.cpp
 #define	XXHASH_CX_XXH32_SEED	(20180101UL)
 #define	XXHASH_CX_XXH64_SEED	(201801011200ULL)
+#include "xxhash_cx.h"
+
+void func()
 {
-  ...
+  // ...
 }
 
 ```
@@ -64,6 +79,3 @@ using xxhash::operator""_xxh64;
 ## License
 
 BSD 2-Clause License.
-
-
-
