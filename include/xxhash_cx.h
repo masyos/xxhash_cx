@@ -1,9 +1,12 @@
-// xxHash 32/64 - C++14 constexpr version.
+//	xxhash_cx
+//	xxHash 32/64 - C++14 constexpr version.
+//	https://github.com/masyos/xxhash_cx
 //
-// Copyright(c) 2018, YOSHIDA Masahiro
-// BSD 2-Clause License
+//	Copyright(c) 2018, YOSHIDA Masahiro
+//	BSD 2-Clause License
 //
-// reference: https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft)
+// xxHash document: https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft)
+
 
 #pragma once
 
@@ -37,11 +40,35 @@ namespace details {
 		return ((n << shift) | (n >> (std::numeric_limits<T>::digits - shift)));
 	}
 	template <class T>
-	constexpr T read(const void*& p)
+	constexpr T read(const char* p)
 	{
-		const T* t = static_cast<const T*>(p);
-		p = t + 1;
-		return *t;
+		return static_cast<T>(*p);
+	}
+	template <>
+	constexpr std::uint16_t read(const char* p)
+	{
+		return (((std::uint16_t)(std::uint8_t(p[0])) << 0) 
+			| ((std::uint16_t)(std::uint8_t(p[1])) << 8));
+	}
+	template <>
+	constexpr std::uint32_t read(const char* p)
+	{
+		return (((std::uint32_t)(std::uint8_t(p[0])) << 0)
+			| ((std::uint32_t)(std::uint8_t(p[1])) << 8)
+			| ((std::uint32_t)(std::uint8_t(p[2])) << 16)
+			| ((std::uint32_t)(std::uint8_t(p[3])) << 24));
+	}
+	template <>
+	constexpr std::uint64_t read(const char* p)
+	{
+		return (((std::uint64_t)(std::uint8_t(p[0])) << 0)
+			| ((std::uint64_t)(std::uint8_t(p[1])) << 8)
+			| ((std::uint64_t)(std::uint8_t(p[2])) << 16)
+			| ((std::uint64_t)(std::uint8_t(p[3])) << 24)
+			| ((std::uint64_t)(std::uint8_t(p[4])) << 32)
+			| ((std::uint64_t)(std::uint8_t(p[5])) << 40)
+			| ((std::uint64_t)(std::uint8_t(p[6])) << 48)
+			| ((std::uint64_t)(std::uint8_t(p[7])) << 56));
 	}
 }
 
@@ -58,13 +85,13 @@ public:
 	///	@brief	xxHash32 data.
 	using hash_type = std::uint32_t;
 
-	constexpr static hash_type xxh(const void* input, std::size_t len, hash_type seed) {
-		const void* src = static_cast<const std::uint8_t*>(input);
-		const std::uint8_t* end = static_cast<const std::uint8_t*>(src) + len;
+	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed) {
+		const char* src{ input };
+		const char* end{ src + len };
 		hash_type acc = 0;
 		// step 1.
 		if (len >= 16) {
-			const std::uint8_t* limit = end - 16;
+			const char* limit{ end - 16 };
 			hash_type acc0 = seed + prime(0) + prime(1);
 			hash_type acc1 = seed + prime(1);
 			hash_type acc2 = seed + 0;
@@ -72,9 +99,13 @@ public:
 			// step 2.
 			do {
 				acc0 = round(acc0, details::read<std::uint32_t>(src));
+				src += sizeof(std::uint32_t);
 				acc1 = round(acc1, details::read<std::uint32_t>(src));
+				src += sizeof(std::uint32_t);
 				acc2 = round(acc2, details::read<std::uint32_t>(src));
+				src += sizeof(std::uint32_t);
 				acc3 = round(acc3, details::read<std::uint32_t>(src));
+				src += sizeof(std::uint32_t);
 			} while (src <= limit);
 			// step 3.
 			acc = convergence(acc0, acc1, acc2, acc3);
@@ -84,11 +115,13 @@ public:
 		// step 4.
 		acc += static_cast<hash_type>(len);
 		// step 5.
-		while ((static_cast<const std::uint8_t*>(src) + 4) <= end) {
+		while ((src + 4) <= end) {
 			acc = details::rotl<hash_type>(acc + (details::read<std::uint32_t>(src) * prime(2)), 17) * prime(3);
+			src += sizeof(std::uint32_t);
 		}
 		while (src < end) {
 			acc = details::rotl<hash_type>(acc + details::read<std::uint8_t>(src) * prime(4), 11) * prime(0);
+			++src;
 		}
 		// step 6.
 		acc = final_mix(acc);
@@ -97,9 +130,9 @@ public:
 	}
 
 private:
-	constexpr static std::array<hash_type, 5> primes{
+	constexpr static std::array<hash_type, 5> primes{ {
 		2654435761U, 2246822519U, 3266489917U, 668265263U, 374761393U
-	};
+	} };
 	constexpr static hash_type prime(int i) { return primes[i]; }
 
 	constexpr static hash_type round(hash_type acc, hash_type input)
@@ -128,14 +161,14 @@ public:
 	///	@brief	xxHash64 data.
 	using hash_type = std::uint64_t;
 
-	constexpr static hash_type xxh(const void* input, std::size_t len, hash_type seed)
+	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed)
 	{
-		const void* src = static_cast<const std::uint8_t*>(input);
-		const std::uint8_t* end = static_cast<const std::uint8_t*>(src) + len;
+		const char* src{ input };
+		const char* end{ src + len };
 		hash_type acc = 0;
 		// step 1.
 		if (len >= 32) {
-			const std::uint8_t* limit = end - 32;
+			const char* limit{ end - 32 };
 			hash_type acc0 = seed + prime(0) + prime(1);
 			hash_type acc1 = seed + prime(1);
 			hash_type acc2 = seed + 0;
@@ -143,9 +176,13 @@ public:
 			// step 2.
 			do {
 				acc0 = round(acc0, details::read<std::uint64_t>(src));
+				src += sizeof(std::uint64_t);
 				acc1 = round(acc1, details::read<std::uint64_t>(src));
+				src += sizeof(std::uint64_t);
 				acc2 = round(acc2, details::read<std::uint64_t>(src));
+				src += sizeof(std::uint64_t);
 				acc3 = round(acc3, details::read<std::uint64_t>(src));
+				src += sizeof(std::uint64_t);
 			} while (src <= limit);
 			// step 3.
 			acc = convergence(acc0, acc1, acc2, acc3);
@@ -155,15 +192,18 @@ public:
 		// step 4.
 		acc += len;
 		// step 5.
-		while ((static_cast<const std::uint8_t*>(src) + 8) <= end)
+		while ((src + 8) <= end)
 		{
 			acc = details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27) * prime(0) + prime(3);
+			src += sizeof(std::uint64_t);
 		}
-		if ((static_cast<const std::uint8_t*>(src) + 4) <= end) {
+		if ((src + 4) <= end) {
 			acc = details::rotl<hash_type>(acc ^ (details::read<std::uint32_t>(src) * prime(0)), 23) * prime(1) + prime(2);
+			src += sizeof(std::uint32_t);
 		}
 		while (src < end) {
 			acc = details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * prime(4)), 11) * prime(0);
+			++src;
 		}
 		// step 6.
 		acc = final_mix(acc);
@@ -172,9 +212,9 @@ public:
 	}
 
 private:
-	constexpr static std::array<hash_type, 5> primes{
+	constexpr static std::array<hash_type, 5> primes{ {
 		11400714785074694791ULL, 14029467366897019727ULL, 1609587929392839161ULL, 9650029242287828579ULL, 2870177450012600261ULL
-	};
+	} };
 	constexpr static hash_type prime(int i) { return primes[i]; }
 
 	constexpr static hash_type round(hash_type acc, hash_type input)
@@ -214,7 +254,7 @@ private:
 ///	@param	len		data length(byte).
 ///	@param	seed	seed.
 ///	@return	xxHash32
-constexpr hash<32>::hash_type xxh32(const void* buf, std::size_t len, hash<32>::hash_type seed) {
+constexpr hash<32>::hash_type xxh32(const char* buf, std::size_t len, hash<32>::hash_type seed) {
 	return hash<32>::xxh(buf, len, seed);
 }
 
@@ -223,7 +263,7 @@ constexpr hash<32>::hash_type xxh32(const void* buf, std::size_t len, hash<32>::
 ///	@param	len		data length(byte).
 ///	@param	seed	seed.
 ///	@return	xxHash64
-constexpr hash<64>::hash_type xxh64(const void* buf, std::size_t len, hash<64>::hash_type seed) {
+constexpr hash<64>::hash_type xxh64(const char* buf, std::size_t len, hash<64>::hash_type seed) {
 	return hash<64>::xxh(buf, len, seed);
 }
 
