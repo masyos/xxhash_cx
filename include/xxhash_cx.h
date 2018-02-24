@@ -3,7 +3,7 @@
 //	https://github.com/masyos/xxhash_cx
 //
 //	Copyright(c) 2018, YOSHIDA Masahiro
-//	BSD 2-Clause License
+//	MIT License
 //
 // xxHash document: https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft)
 

@@ -78,4 +78,4 @@ void func()
 
 ## License
 
-BSD 2-Clause License.
+MIT License.
