@@ -18,6 +18,10 @@
 #include <string>
 #include <limits>
 
+#if defined(__clang__) || (__gcc__)
+#define	XXHASH_CX_SUPPORT_NATIVE_INT128	(1)
+#endif // defined(_MSC_VER)
+
 #ifndef	XXHASH_CX_XXH32_SEED
 ///	@brief	user defined literals - default xxHash32 seed. 
 #define	XXHASH_CX_XXH32_SEED	(20180101UL)
@@ -84,6 +88,7 @@ class hash<32> {
 public:
 	///	@brief	xxHash32 data.
 	using hash_type = std::uint32_t;
+	using long_type = std::uint64_t;
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed) {
 		const char* src{ input };
@@ -92,8 +97,8 @@ public:
 		// step 1.
 		if (len >= 16) {
 			const char* limit{ end - 16 };
-			hash_type acc0 = seed + prime(0) + prime(1);
-			hash_type acc1 = seed + prime(1);
+			hash_type acc0 = static_cast<hash_type>(seed + static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(1)));
+			hash_type acc1 = static_cast<hash_type>(seed + static_cast<long_type>(prime(1)));
 			hash_type acc2 = seed + 0;
 			hash_type acc3 = seed - prime(0);
 			// step 2.
@@ -110,17 +115,32 @@ public:
 			// step 3.
 			acc = convergence(acc0, acc1, acc2, acc3);
 		} else {
-			acc = seed + prime(4);
+			acc = static_cast<hash_type>(seed + static_cast<long_type>(prime(4)));
 		}
 		// step 4.
-		acc += static_cast<hash_type>(len);
+		acc = static_cast<hash_type>(static_cast<long_type>(acc) + static_cast<long_type>(len));
 		// step 5.
 		while ((src + 4) <= end) {
-			acc = details::rotl<hash_type>(acc + (details::read<std::uint32_t>(src) * prime(2)), 17) * prime(3);
+			acc = static_cast<hash_type>(
+				details::rotl<hash_type>(
+					static_cast<hash_type>(
+						static_cast<long_type>(acc) 
+						+ static_cast<long_type>((details::read<std::uint32_t>(src)) 
+							* static_cast<long_type>(prime(2))))
+					, 17) 
+				* static_cast<long_type>(prime(3))
+				);
 			src += sizeof(std::uint32_t);
 		}
 		while (src < end) {
-			acc = details::rotl<hash_type>(acc + details::read<std::uint8_t>(src) * prime(4), 11) * prime(0);
+			acc = static_cast<hash_type>(
+				details::rotl<hash_type>(
+					static_cast<long_type>(acc) 
+					+ static_cast<long_type>(details::read<std::uint8_t>(src)) 
+					* static_cast<long_type>(prime(4))
+					, 11) 
+				* static_cast<long_type>(prime(0))
+				);
 			++src;
 		}
 		// step 6.
@@ -137,22 +157,33 @@ private:
 
 	constexpr static hash_type round(hash_type acc, hash_type input)
 	{
-		return details::rotl<hash_type>(acc + (input * prime(1)), 13) * prime(0);
+		return static_cast<hash_type>(
+			details::rotl<hash_type>(
+				static_cast<hash_type>(static_cast<long_type>(static_cast<long_type>(acc) + (static_cast<long_type>(input) * static_cast<long_type>(prime(1)))))
+				, 13)
+			* static_cast<long_type>(prime(0))
+			);
 	}
 
 	constexpr static hash_type convergence(hash_type acc0, hash_type acc1, hash_type acc2, hash_type acc3)
 	{
-		return details::rotl(acc0, 1) + details::rotl(acc1, 7) + details::rotl(acc2, 12) + details::rotl(acc3, 18);
+		return static_cast<hash_type>(
+			static_cast<long_type>(details::rotl(acc0, 1)) 
+			+ static_cast<long_type>(details::rotl(acc1, 7)) 
+			+ static_cast<long_type>(details::rotl(acc2, 12)) 
+			+ static_cast<long_type>(details::rotl(acc3, 18))
+			);
 	}
 
 	constexpr static hash_type final_mix(hash_type acc)
 	{
-		acc = (acc ^ (acc >> 15)) * prime(1);
-		acc = (acc ^ (acc >> 13)) * prime(2);
+		acc = static_cast<hash_type>((acc ^ (acc >> 15)) * static_cast<long_type>(prime(1)));
+		acc = static_cast<hash_type>((acc ^ (acc >> 13)) * static_cast<long_type>(prime(2)));
 		acc = acc ^ (acc >> 16);
 		return acc;
 	}
 };
+
 
 ///	@brief	xxHash64.
 template <>
@@ -160,6 +191,12 @@ class hash<64> {
 public:
 	///	@brief	xxHash64 data.
 	using hash_type = std::uint64_t;
+#if defined(XXHASH_CX_SUPPORT_NATIVE_INT128)
+	using long_type = unsigned __int128_t;
+#else
+	using long_type = std::uintmax_t;
+#endif // defined(XXHASH_CX_SUPPORT_INT128)
+
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed)
 	{
@@ -169,8 +206,8 @@ public:
 		// step 1.
 		if (len >= 32) {
 			const char* limit{ end - 32 };
-			hash_type acc0 = seed + prime(0) + prime(1);
-			hash_type acc1 = seed + prime(1);
+			hash_type acc0 = static_cast<hash_type>(seed + static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(1)));
+			hash_type acc1 = static_cast<hash_type>(seed + static_cast<long_type>(prime(1)));
 			hash_type acc2 = seed + 0;
 			hash_type acc3 = seed - prime(0);
 			// step 2.
@@ -187,22 +224,28 @@ public:
 			// step 3.
 			acc = convergence(acc0, acc1, acc2, acc3);
 		} else {
-			acc = seed + prime(4);
+			acc = static_cast<hash_type>(seed + static_cast<long_type>(prime(4)));
 		}
 		// step 4.
 		acc += len;
 		// step 5.
 		while ((src + 8) <= end)
 		{
-			acc = details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27) * prime(0) + prime(3);
+			acc = static_cast<hash_type>(
+				details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27) 
+				* static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(3)));
 			src += sizeof(std::uint64_t);
 		}
 		if ((src + 4) <= end) {
-			acc = details::rotl<hash_type>(acc ^ (details::read<std::uint32_t>(src) * prime(0)), 23) * prime(1) + prime(2);
+			acc = static_cast<hash_type>(
+				details::rotl<hash_type>(acc ^ static_cast<hash_type>((details::read<std::uint32_t>(src) * static_cast<long_type>(prime(0)))), 23)
+				* static_cast<long_type>(prime(1)) + static_cast<long_type>(prime(2)));
 			src += sizeof(std::uint32_t);
 		}
 		while (src < end) {
-			acc = details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * prime(4)), 11) * prime(0);
+			acc = static_cast<hash_type>(
+				details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * static_cast<long_type>(prime(4))), 11)
+				* static_cast<long_type>(prime(0)));
 			++src;
 		}
 		// step 6.
@@ -219,19 +262,27 @@ private:
 
 	constexpr static hash_type round(hash_type acc, hash_type input)
 	{
-		acc += input * prime(1);
+		acc = static_cast<hash_type>(acc + (static_cast<long_type>(input) * static_cast<long_type>(prime(1))));
 		acc = details::rotl(acc, 31);
-		return (acc * prime(0));
+		return static_cast<hash_type>(acc * static_cast<long_type>(prime(0)));
 	}
 
 	constexpr static hash_type mearge_accumulator(hash_type acc, hash_type acc_n)
 	{
-		return ((acc ^ round(0, acc_n)) * prime(0)) + prime(3);
+		return static_cast<hash_type>(
+			((acc ^ round(0, acc_n)) * static_cast<long_type>(prime(0)))
+			+ static_cast<long_type>(prime(3))
+			);
 	}
 
 	constexpr static hash_type convergence(hash_type acc0, hash_type acc1, hash_type acc2, hash_type acc3)
 	{
-		hash_type acc = details::rotl(acc0, 1) + details::rotl(acc1, 7) + details::rotl(acc2, 12) + details::rotl(acc3, 18);
+		hash_type acc = static_cast<hash_type>(
+			static_cast<long_type>(details::rotl(acc0, 1))
+			+ static_cast<long_type>(details::rotl(acc1, 7))
+			+ static_cast<long_type>(details::rotl(acc2, 12))
+			+ static_cast<long_type>(details::rotl(acc3, 18))
+			);
 		acc = mearge_accumulator(acc, acc0);
 		acc = mearge_accumulator(acc, acc1);
 		acc = mearge_accumulator(acc, acc2);
@@ -240,8 +291,8 @@ private:
 	}
 
 	constexpr static hash_type final_mix(hash_type acc) {
-		acc = (acc ^ (acc >> 33)) * prime(1);
-		acc = (acc ^ (acc >> 29)) * prime(2);
+		acc = static_cast<hash_type>((acc ^ (acc >> 33)) * static_cast<long_type>(prime(1)));
+		acc = static_cast<hash_type>((acc ^ (acc >> 29)) * static_cast<long_type>(prime(2)));
 		acc = (acc ^ (acc >> 32));
 		return acc;
 	}

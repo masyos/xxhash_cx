@@ -7,8 +7,14 @@
 
 #include "xxhash.h"
 
-#define	XXHASH_CX_XXH32_SEED	(20180211UL)
-#define	XXHASH_CX_XXH64_SEED	(201802111229ULL)
+#define	XXHASH_CX_XXH32_SEED_MIN	(0UL)
+#define	XXHASH_CX_XXH64_SEED_MIN	(0ULL)
+#define	XXHASH_CX_XXH32_SEED_MAX	(UINT32_MAX)
+#define	XXHASH_CX_XXH64_SEED_MAX	(UINT64_MAX)
+#define	XXHASH_CX_XXH32_SEED_TEST	(20180211UL)
+#define	XXHASH_CX_XXH64_SEED_TEST	(201802111229ULL)
+#define	XXHASH_CX_XXH32_SEED	XXHASH_CX_XXH32_SEED_TEST
+#define	XXHASH_CX_XXH64_SEED	XXHASH_CX_XXH32_SEED_TEST
 
 #include "xxhash_cx.h"
 
@@ -36,7 +42,7 @@ void gen_random_data(std::vector<T>& buf, std::size_t size)
 
 
 
-TEST(xxh32_cx_test, xxh32_test)
+TEST(xxh32_cx_test, xxh32)
 {
 	std::vector<std::uint32_t>	buffer;
 
@@ -52,8 +58,7 @@ TEST(xxh32_cx_test, xxh32_test)
 	EXPECT_EQ(c_h, cx_h);
 }
 
-
-TEST(xxh64_cx_test, xxh64_test)
+TEST(xxh64_cx_test, xxh64)
 {
 	std::vector<std::uint32_t>	buffer;
 
@@ -68,6 +73,32 @@ TEST(xxh64_cx_test, xxh64_test)
 	EXPECT_EQ(c_h, cx_h);
 }
 
+TEST(xxh32_cx_test, xxh32_cx_seed)
+{
+	std::uint32_t c_h = XXH32(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH32_SEED_MIN);
+	constexpr xxhash::hash<32>::hash_type cx_h = xxhash::xxh32(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH32_SEED_MIN);
+	EXPECT_EQ(c_h, cx_h);
+	std::uint32_t c_h2 = XXH32(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH32_SEED_MAX);
+	constexpr xxhash::hash<32>::hash_type cx_h2 = xxhash::xxh32(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH32_SEED_MAX);
+	EXPECT_EQ(c_h2, cx_h2);
+	std::uint32_t c_h3 = XXH32(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH32_SEED_TEST);
+	constexpr xxhash::hash<32>::hash_type cx_h3 = xxhash::xxh32(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH32_SEED_TEST);
+	EXPECT_EQ(c_h3, cx_h3);
+}
+
+TEST(xxh64_cx_test, xxh64_cx_seed)
+{
+	std::uint64_t c_h = XXH64(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED_MIN);
+	constexpr xxhash::hash<64>::hash_type cx_h = xxhash::xxh64(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH64_SEED_MIN);
+	EXPECT_EQ(c_h, cx_h);
+	std::uint64_t c_h2 = XXH64(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED_MAX);
+	constexpr xxhash::hash<64>::hash_type cx_h2 = xxhash::xxh64(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH64_SEED_MAX);
+	EXPECT_EQ(c_h2, cx_h2);
+	std::uint64_t c_h3 = XXH64(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED_TEST);
+	constexpr xxhash::hash<64>::hash_type cx_h3 = xxhash::xxh64(STR_ABC, sizeof(STR_ABC)-1, XXHASH_CX_XXH64_SEED_TEST);
+	EXPECT_EQ(c_h3, cx_h3);
+}
+
 
 
 TEST(xxh32_cx_test, user_literal_xxh32_cx_raw)
@@ -77,13 +108,13 @@ TEST(xxh32_cx_test, user_literal_xxh32_cx_raw)
 	EXPECT_EQ(c_h, cx_h);
 }
 
-
 TEST(xxh64_cx_test, user_literal_xxh64_cx_raw)
 {
 	std::uint64_t c_h = XXH64("ABC", std::strlen("ABC"), XXHASH_CX_XXH64_SEED);
 	constexpr xxhash::hash<64>::hash_type cx_h = "ABC"_xxh64;
 	EXPECT_EQ(c_h, cx_h);
 }
+
 
 
 TEST(xxh32_cx_test, user_literal_xxh32_cx)
@@ -93,13 +124,11 @@ TEST(xxh32_cx_test, user_literal_xxh32_cx)
 	EXPECT_EQ(c_h, cx_h);
 }
 
-
 TEST(xxh64_cx_test, user_literal_xxh64_cx)
 {
 	std::uint64_t c_h = XXH64(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED);
 	const xxhash::hash<64>::hash_type cx_h = STR_XXH64(STR_ABC);
 	EXPECT_EQ(c_h, cx_h);
 }
-
 
 
