@@ -54,7 +54,10 @@ TEST(xxh32_cx_test, xxh32)
 	gen_random_data(buffer, 3);
 	c_h = XXH32(buffer.data(), buffer.size() * sizeof(std::uint32_t), XXHASH_CX_XXH32_SEED);
 	cx_h = xxhash::xxh32((char*)buffer.data(), buffer.size() * sizeof(std::uint32_t), XXHASH_CX_XXH32_SEED);
+	EXPECT_EQ(c_h, cx_h);
 
+	c_h = XXH32(nullptr, 0, XXHASH_CX_XXH32_SEED);
+	cx_h = xxhash::xxh32(nullptr, 0, XXHASH_CX_XXH32_SEED);
 	EXPECT_EQ(c_h, cx_h);
 }
 
@@ -71,7 +74,39 @@ TEST(xxh64_cx_test, xxh64)
 	c_h = XXH64(buffer.data(), buffer.size() * sizeof(std::uint32_t), XXHASH_CX_XXH64_SEED);
 	cx_h = xxhash::xxh64((char*)buffer.data(), buffer.size() * sizeof(std::uint32_t), XXHASH_CX_XXH64_SEED);
 	EXPECT_EQ(c_h, cx_h);
+
+	c_h = XXH64(nullptr, 0, XXHASH_CX_XXH64_SEED);
+	cx_h = xxhash::xxh64(nullptr, 0, XXHASH_CX_XXH64_SEED);
+	EXPECT_EQ(c_h, cx_h);
 }
+
+TEST(xxh32_cx_test, xxh32_cx_nullptr)
+{
+	std::uint32_t c_h = XXH32(nullptr, 0, XXHASH_CX_XXH32_SEED_TEST);
+	constexpr xxhash::hash<32>::hash_type cx_h = xxhash::xxh32(nullptr, 0, XXHASH_CX_XXH32_SEED_TEST);
+	EXPECT_EQ(c_h, cx_h);
+	std::uint32_t c_h2 = XXH32(STR_ABC, 0, XXHASH_CX_XXH32_SEED_TEST);
+	constexpr xxhash::hash<32>::hash_type cx_h2 = xxhash::xxh32(STR_ABC, 0, XXHASH_CX_XXH32_SEED_TEST);
+	EXPECT_EQ(c_h2, cx_h2);
+	std::uint32_t c_h3 = XXH32(nullptr, std::strlen(STR_ABC), XXHASH_CX_XXH32_SEED_TEST);
+	constexpr xxhash::hash<32>::hash_type cx_h3 = xxhash::xxh32(nullptr, sizeof(STR_ABC) - 1, XXHASH_CX_XXH32_SEED_TEST);
+	EXPECT_EQ(c_h3, cx_h3);
+}
+
+TEST(xxh64_cx_test, xxh64_cx_nullptr)
+{
+	std::uint64_t c_h = XXH64(nullptr, 0, XXHASH_CX_XXH64_SEED_MIN);
+	constexpr xxhash::hash<64>::hash_type cx_h = xxhash::xxh64(nullptr, 0, XXHASH_CX_XXH64_SEED_MIN);
+	EXPECT_EQ(c_h, cx_h);
+	std::uint64_t c_h2 = XXH64(STR_ABC, 0, XXHASH_CX_XXH64_SEED_MAX);
+	constexpr xxhash::hash<64>::hash_type cx_h2 = xxhash::xxh64(STR_ABC, 0, XXHASH_CX_XXH64_SEED_MAX);
+	EXPECT_EQ(c_h2, cx_h2);
+	std::uint64_t c_h3 = XXH64(nullptr, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED_TEST);
+	constexpr xxhash::hash<64>::hash_type cx_h3 = xxhash::xxh64(nullptr, sizeof(STR_ABC) - 1, XXHASH_CX_XXH64_SEED_TEST);
+	EXPECT_EQ(c_h3, cx_h3);
+}
+
+
 
 TEST(xxh32_cx_test, xxh32_cx_seed)
 {

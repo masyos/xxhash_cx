@@ -6,6 +6,7 @@ project(xxhash_cx_test)
 
 if (MSVC)
     add_definitions(-D_UNICODE)
+    add_definitions(-DXXH_ACCEPT_NULL_INPUT_POINTER=1)
     string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_DEBUG            ${CMAKE_C_FLAGS_DEBUG})
     string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_MINSIZEREL       ${CMAKE_C_FLAGS_MINSIZEREL})
     string(REPLACE "/MD" "/MT" CMAKE_C_FLAGS_RELEASE          ${CMAKE_C_FLAGS_RELEASE})

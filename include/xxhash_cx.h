@@ -91,6 +91,9 @@ public:
 	using long_type = std::uint64_t;
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed) {
+		if (input == nullptr) {
+			len = 0;
+		}
 		const char* src{ input };
 		const char* end{ src + len };
 		hash_type acc = 0;
@@ -120,28 +123,30 @@ public:
 		// step 4.
 		acc = static_cast<hash_type>(static_cast<long_type>(acc) + static_cast<long_type>(len));
 		// step 5.
-		while ((src + 4) <= end) {
-			acc = static_cast<hash_type>(
-				details::rotl<hash_type>(
-					static_cast<hash_type>(
-						static_cast<long_type>(acc) 
-						+ static_cast<long_type>((details::read<std::uint32_t>(src)) 
-							* static_cast<long_type>(prime(2))))
-					, 17) 
-				* static_cast<long_type>(prime(3))
-				);
-			src += sizeof(std::uint32_t);
-		}
-		while (src < end) {
-			acc = static_cast<hash_type>(
-				details::rotl<hash_type>(
-					static_cast<long_type>(acc) 
-					+ static_cast<long_type>(details::read<std::uint8_t>(src)) 
-					* static_cast<long_type>(prime(4))
-					, 11) 
-				* static_cast<long_type>(prime(0))
-				);
-			++src;
+		if (input != nullptr) {
+			while ((src + 4) <= end) {
+				acc = static_cast<hash_type>(
+					details::rotl<hash_type>(
+						static_cast<hash_type>(
+							static_cast<long_type>(acc)
+							+ static_cast<long_type>((details::read<std::uint32_t>(src))
+								* static_cast<long_type>(prime(2))))
+						, 17)
+					* static_cast<long_type>(prime(3))
+					);
+				src += sizeof(std::uint32_t);
+			}
+			while (src < end) {
+				acc = static_cast<hash_type>(
+					details::rotl<hash_type>(
+						static_cast<long_type>(acc)
+						+ static_cast<long_type>(details::read<std::uint8_t>(src))
+						* static_cast<long_type>(prime(4))
+						, 11)
+					* static_cast<long_type>(prime(0))
+					);
+				++src;
+			}
 		}
 		// step 6.
 		acc = final_mix(acc);
@@ -200,6 +205,9 @@ public:
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed)
 	{
+		if (input == nullptr) {
+			len = 0;
+		}
 		const char* src{ input };
 		const char* end{ src + len };
 		hash_type acc = 0;
@@ -229,24 +237,26 @@ public:
 		// step 4.
 		acc += len;
 		// step 5.
-		while ((src + 8) <= end)
-		{
-			acc = static_cast<hash_type>(
-				details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27) 
-				* static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(3)));
-			src += sizeof(std::uint64_t);
-		}
-		if ((src + 4) <= end) {
-			acc = static_cast<hash_type>(
-				details::rotl<hash_type>(acc ^ static_cast<hash_type>((details::read<std::uint32_t>(src) * static_cast<long_type>(prime(0)))), 23)
-				* static_cast<long_type>(prime(1)) + static_cast<long_type>(prime(2)));
-			src += sizeof(std::uint32_t);
-		}
-		while (src < end) {
-			acc = static_cast<hash_type>(
-				details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * static_cast<long_type>(prime(4))), 11)
-				* static_cast<long_type>(prime(0)));
-			++src;
+		if (input != nullptr) {
+			while ((src + 8) <= end)
+			{
+				acc = static_cast<hash_type>(
+					details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27)
+					* static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(3)));
+				src += sizeof(std::uint64_t);
+			}
+			if ((src + 4) <= end) {
+				acc = static_cast<hash_type>(
+					details::rotl<hash_type>(acc ^ static_cast<hash_type>((details::read<std::uint32_t>(src) * static_cast<long_type>(prime(0)))), 23)
+					* static_cast<long_type>(prime(1)) + static_cast<long_type>(prime(2)));
+				src += sizeof(std::uint32_t);
+			}
+			while (src < end) {
+				acc = static_cast<hash_type>(
+					details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * static_cast<long_type>(prime(4))), 11)
+					* static_cast<long_type>(prime(0)));
+				++src;
+			}
 		}
 		// step 6.
 		acc = final_mix(acc);
