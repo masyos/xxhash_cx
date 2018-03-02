@@ -6,8 +6,7 @@
 //	MIT License
 //
 // xxHash document: https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft)
-
-
+//
 #pragma once
 
 #ifndef	XXHASH_CX_H
@@ -35,46 +34,51 @@
 namespace xxhash {
 
 	
-namespace details {
+	namespace details {
 
-	template <class T>
-	constexpr T rotl(T n, std::size_t shift)
-	{
-		static_assert(std::numeric_limits<T>::is_integer, "integer only.");
-		return ((n << shift) | (n >> (std::numeric_limits<T>::digits - shift)));
+		template <class T>
+		constexpr T rotl(T n, std::size_t shift)
+		{
+			static_assert(std::numeric_limits<T>::is_integer, "integer only.");
+			return ((n << shift) | (n >> (std::numeric_limits<T>::digits - shift)));
+		}
+		template <class T>
+		constexpr T read(const char* p)
+		{
+			return static_cast<T>(*p);
+		}
+		template <>
+		constexpr std::uint8_t read(const char* p)
+		{
+			return std::uint8_t(p[0]);
+		}
+		template <>
+		constexpr std::uint16_t read(const char* p)
+		{
+			return ((static_cast<std::uint16_t>(std::uint8_t(p[0])) << 0) 
+				| (static_cast<std::uint16_t>(std::uint8_t(p[1])) << 8));
+		}
+		template <>
+		constexpr std::uint32_t read(const char* p)
+		{
+			return ((static_cast<std::uint32_t>(std::uint8_t(p[0])) << 0)
+				| (static_cast<std::uint32_t>(std::uint8_t(p[1])) << 8)
+				| (static_cast<std::uint32_t>(std::uint8_t(p[2])) << 16)
+				| (static_cast<std::uint32_t>(std::uint8_t(p[3])) << 24));
+		}
+		template <>
+		constexpr std::uint64_t read(const char* p)
+		{
+			return ((static_cast<std::uint64_t>(std::uint8_t(p[0])) << 0)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[1])) << 8)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[2])) << 16)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[3])) << 24)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[4])) << 32)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[5])) << 40)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[6])) << 48)
+				| (static_cast<std::uint64_t>(std::uint8_t(p[7])) << 56));
+		}
 	}
-	template <class T>
-	constexpr T read(const char* p)
-	{
-		return static_cast<T>(*p);
-	}
-	template <>
-	constexpr std::uint16_t read(const char* p)
-	{
-		return (((std::uint16_t)(std::uint8_t(p[0])) << 0) 
-			| ((std::uint16_t)(std::uint8_t(p[1])) << 8));
-	}
-	template <>
-	constexpr std::uint32_t read(const char* p)
-	{
-		return (((std::uint32_t)(std::uint8_t(p[0])) << 0)
-			| ((std::uint32_t)(std::uint8_t(p[1])) << 8)
-			| ((std::uint32_t)(std::uint8_t(p[2])) << 16)
-			| ((std::uint32_t)(std::uint8_t(p[3])) << 24));
-	}
-	template <>
-	constexpr std::uint64_t read(const char* p)
-	{
-		return (((std::uint64_t)(std::uint8_t(p[0])) << 0)
-			| ((std::uint64_t)(std::uint8_t(p[1])) << 8)
-			| ((std::uint64_t)(std::uint8_t(p[2])) << 16)
-			| ((std::uint64_t)(std::uint8_t(p[3])) << 24)
-			| ((std::uint64_t)(std::uint8_t(p[4])) << 32)
-			| ((std::uint64_t)(std::uint8_t(p[5])) << 40)
-			| ((std::uint64_t)(std::uint8_t(p[6])) << 48)
-			| ((std::uint64_t)(std::uint8_t(p[7])) << 56));
-	}
-}
 
 ///	@brief	xxHash.
 template <int N>
