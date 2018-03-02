@@ -33,6 +33,7 @@ set(SOURCE
 )
 
 set(EXTLIB
+	../include/xxhash_cx.h
 	./extlib/xxhash/xxhash.h
 	./extlib/xxhash/xxhash.c
 )
