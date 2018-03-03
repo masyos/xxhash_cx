@@ -18,7 +18,7 @@
 #include <limits>
 
 #if defined(__clang__) || (__gcc__)
-#define	XXHASH_CX_SUPPORT_NATIVE_INT128	(1)
+//#define	XXHASH_CX_SUPPORT_NATIVE_INT128	(1)
 #endif // defined(_MSC_VER)
 
 #ifndef	XXHASH_CX_XXH32_SEED
@@ -127,8 +127,9 @@ public:
 		// step 4.
 		acc = static_cast<hash_type>(static_cast<long_type>(acc) + static_cast<long_type>(len));
 		// step 5.
-		if (input != nullptr) {
-			while ((src + 4) <= end) {
+		if (len >= 4) {
+			const char* limit{ end - 4 };
+			while (src <= limit) {
 				acc = static_cast<hash_type>(
 					details::rotl<hash_type>(
 						static_cast<hash_type>(
@@ -140,6 +141,8 @@ public:
 					);
 				src += sizeof(std::uint32_t);
 			}
+		}
+		if (input != nullptr) {
 			while (src < end) {
 				acc = static_cast<hash_type>(
 					details::rotl<hash_type>(
@@ -241,20 +244,25 @@ public:
 		// step 4.
 		acc += len;
 		// step 5.
-		if (input != nullptr) {
-			while ((src + 8) <= end)
-			{
+		if (len >= 8) {
+			const char* limit{ end - 8 };
+			while (src <= limit) {
 				acc = static_cast<hash_type>(
 					details::rotl<std::uint64_t>(acc ^ round(0, details::read<std::uint64_t>(src)), 27)
 					* static_cast<long_type>(prime(0)) + static_cast<long_type>(prime(3)));
 				src += sizeof(std::uint64_t);
 			}
-			if ((src + 4) <= end) {
+		}
+		if (len >= 4) {
+			const char* limit{ end - 4 };
+			while (src <= limit) {
 				acc = static_cast<hash_type>(
 					details::rotl<hash_type>(acc ^ static_cast<hash_type>((details::read<std::uint32_t>(src) * static_cast<long_type>(prime(0)))), 23)
 					* static_cast<long_type>(prime(1)) + static_cast<long_type>(prime(2)));
 				src += sizeof(std::uint32_t);
 			}
+		}
+		if (input != nullptr) {
 			while (src < end) {
 				acc = static_cast<hash_type>(
 					details::rotl<hash_type>(acc ^ (details::read<std::uint8_t>(src) * static_cast<long_type>(prime(4))), 11)
