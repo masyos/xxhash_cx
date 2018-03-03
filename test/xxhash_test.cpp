@@ -155,14 +155,14 @@ TEST(xxh64_cx_test, user_literal_xxh64_cx_raw)
 TEST(xxh32_cx_test, user_literal_xxh32_cx)
 {
 	std::uint32_t c_h = XXH32(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH32_SEED);
-	const xxhash::hash<32>::hash_type cx_h = STR_XXH32(STR_ABC);
+	constexpr xxhash::hash<32>::hash_type cx_h = STR_XXH32(STR_ABC);
 	EXPECT_EQ(c_h, cx_h);
 }
 
 TEST(xxh64_cx_test, user_literal_xxh64_cx)
 {
 	std::uint64_t c_h = XXH64(STR_ABC, std::strlen(STR_ABC), XXHASH_CX_XXH64_SEED);
-	const xxhash::hash<64>::hash_type cx_h = STR_XXH64(STR_ABC);
+	constexpr xxhash::hash<64>::hash_type cx_h = STR_XXH64(STR_ABC);
 	EXPECT_EQ(c_h, cx_h);
 }
 

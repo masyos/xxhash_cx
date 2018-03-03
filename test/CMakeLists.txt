@@ -1,6 +1,6 @@
 # xxHash_cx test
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.5)
 
 project(xxhash_cx_test)
 
@@ -17,11 +17,17 @@ if (MSVC)
     string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 endif ()
 
+if (UNIX)
+endif ()
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_subdirectory(extlib/googletest)
 
 include_directories(../include)
-include_directories(./extlib/xxhash)
+include_directories(./extlib/xxHash)
 include_directories(${googletest_BINARY_DIR}/include)
 link_directories(${googletest_BINARY_DIR}/lib)
 
@@ -34,8 +40,8 @@ set(SOURCE
 
 set(EXTLIB
 	../include/xxhash_cx.h
-	./extlib/xxhash/xxhash.h
-	./extlib/xxhash/xxhash.c
+	./extlib/xxHash/xxhash.h
+	./extlib/xxHash/xxhash.c
 )
 
 add_executable(
