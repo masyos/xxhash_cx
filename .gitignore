@@ -330,8 +330,8 @@ ASALocalRun/
 # masyos
 # xxhash_cx
 # 
-build/
+build*/
 extlib/
-test/build/
+test/build*/
 test/extlib/
 *.bat
