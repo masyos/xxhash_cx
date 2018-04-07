@@ -17,9 +17,26 @@
 #include <string>
 #include <limits>
 
-#if defined(__clang__) || (__gcc__)
-//#define	XXHASH_CX_SUPPORT_NATIVE_INT128	(1)
-#endif // defined(_MSC_VER)
+#if defined(_MSC_VER)
+// Microsoft Visual C++
+#if (_MSC_VER < 1910)
+#error no support.
+#endif // (_MSC_VER < 1910)
+#elif defined(__clang__)
+// clang
+#if (__clang_major__ < 5)
+#error no support.
+#endif // (__clang_major__ < 5)
+#elif defined(__GNUC__)
+// gcc
+#if (__GNUC__ < 6)
+#error no support.
+#elif ((__GNUC__ == 6)&&(__GNUC_MINOR__ < 2))
+#error no support.
+#endif // (__GNUC__ < 6)
+#endif 
+
+
 
 #ifndef	XXHASH_CX_XXH32_SEED
 ///	@brief	user defined literals - default xxHash32 seed. 
