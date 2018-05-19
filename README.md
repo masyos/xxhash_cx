@@ -31,8 +31,8 @@ void func()
   using xxhash::operator""_xxh32;
   using xxhash::operator""_xxh64;
 
-  xxhash::hash<32>::hash_type h32 = "text-hogehoge"_xx32;
-  xxhash::hash<64>::hash_type h64 = "text-hogehoge"_xx64;
+  xxhash::hash<32>::hash_type h32 = "text-hogehoge"_xxh32;
+  xxhash::hash<64>::hash_type h64 = "text-hogehoge"_xxh64;
   // ...
 }
 ```
