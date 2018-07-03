@@ -112,12 +112,20 @@ public:
 	using long_type = std::uint64_t;
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed) {
+		hash_type acc = 0;
 		if (input == nullptr) {
 			len = 0;
+			// step 1.
+			acc = static_cast<hash_type>(seed + static_cast<long_type>(prime(4)));
+			// step 4.
+			acc = static_cast<hash_type>(static_cast<long_type>(acc) + static_cast<long_type>(len));
+			// step 6.
+			acc = final_mix(acc);
+			// step 7.
+			return acc;
 		}
 		const char* src{ input };
 		const char* end{ src + len };
-		hash_type acc = 0;
 		// step 1.
 		if (len >= 16) {
 			const char* limit{ end - 16 };
@@ -229,12 +237,20 @@ public:
 
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed)
 	{
+		hash_type acc = 0;
 		if (input == nullptr) {
 			len = 0;
+			// step 1.
+			acc = static_cast<hash_type>(seed + static_cast<long_type>(prime(4)));
+			// step 4.
+			acc += len;
+			// step 6.
+			acc = final_mix(acc);
+			// step 7.
+			return acc;
 		}
 		const char* src{ input };
 		const char* end{ src + len };
-		hash_type acc = 0;
 		// step 1.
 		if (len >= 32) {
 			const char* limit{ end - 32 };

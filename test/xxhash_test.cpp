@@ -167,3 +167,33 @@ TEST(xxh64_cx_test, user_literal_xxh64_cx)
 }
 
 
+
+// note: VS 15.7 compile check.
+// const char* end{ nullptr + 0 }; // compile error!
+
+template <std::uint32_t Seed>
+struct Hash32 {
+	static constexpr std::uint32_t INVALID = xxhash::xxh32(nullptr, 0, Seed);
+};
+
+template <std::uint64_t Seed>
+struct Hash64 {
+	static constexpr std::uint64_t INVALID = xxhash::xxh64(nullptr, 0, Seed);
+};
+
+
+TEST(xxh32_cx_test, xxh32_cx_nullptr_calc)
+{
+	std::uint32_t c_h = XXH32(nullptr, 0, XXHASH_CX_XXH32_SEED);
+	constexpr xxhash::hash<32>::hash_type cx_h = Hash32<XXHASH_CX_XXH32_SEED>::INVALID;
+	EXPECT_EQ(c_h, cx_h);
+}
+
+TEST(xxh64_cx_test, xxh64_cx_nullptr_calc)
+{
+	std::uint64_t c_h = XXH64(nullptr, 0, XXHASH_CX_XXH64_SEED);
+	constexpr xxhash::hash<64>::hash_type cx_h = Hash64<XXHASH_CX_XXH64_SEED>::INVALID;
+	EXPECT_EQ(c_h, cx_h);
+}
+
+
