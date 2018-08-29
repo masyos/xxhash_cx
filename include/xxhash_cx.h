@@ -100,6 +100,7 @@ namespace xxhash {
 ///	@brief	xxHash.
 template <int N>
 class hash {
+public:
 };
 
 
@@ -111,6 +112,11 @@ public:
 	using hash_type = std::uint32_t;
 	using long_type = std::uint64_t;
 
+	///	@brief	xxHash32.
+	///	@param	buf		data.
+	///	@param	len		data length(byte).
+	///	@param	seed	seed.
+	///	@return	xxHash32
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed) {
 		hash_type acc = 0;
 		if (input == nullptr) {
@@ -234,7 +240,11 @@ public:
 	using long_type = std::uintmax_t;
 #endif // defined(XXHASH_CX_SUPPORT_INT128)
 
-
+	///	@brief	xxHash64
+	///	@param	buf		data.
+	///	@param	len		data length(byte).
+	///	@param	seed	seed.
+	///	@return	xxHash64
 	constexpr static hash_type xxh(const char* input, std::size_t len, hash_type seed)
 	{
 		hash_type acc = 0;
@@ -373,16 +383,20 @@ constexpr hash<64>::hash_type xxh64(const char* buf, std::size_t len, hash<64>::
 	return hash<64>::xxh(buf, len, seed);
 }
 
+///	@brief	literals namespace.
+inline namespace literals {
 
-///	@brief	user defined literals - xxHash32.
-constexpr hash<32>::hash_type operator"" _xxh32(const char* str, std::size_t len) {
-	return xxh32(str, len, XXHASH_CX_XXH32_SEED);
-}
+	///	@brief	user defined literals - xxHash32.
+	constexpr hash<32>::hash_type operator"" _xxh32(const char* str, std::size_t len) {
+		return xxh32(str, len, XXHASH_CX_XXH32_SEED);
+	}
 
-///	@brief	user defined literals - xxHash64.
-constexpr hash<64>::hash_type operator"" _xxh64(const char* str, std::size_t len) {
-	return xxh64(str, len, XXHASH_CX_XXH64_SEED);
-}
+	///	@brief	user defined literals - xxHash64.
+	constexpr hash<64>::hash_type operator"" _xxh64(const char* str, std::size_t len) {
+		return xxh64(str, len, XXHASH_CX_XXH64_SEED);
+	}
+
+}	// inline namespace literals.
 
 }	// namespace xxhash.
 

@@ -25,8 +25,8 @@
 
 #define	STR_ABC	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-using xxhash::operator""_xxh32;
-using xxhash::operator""_xxh64;
+using namespace xxhash::literals;
+using namespace xxhash::literals;
 
 template <class T>
 void gen_random_data(std::vector<T>& buf, std::size_t size)
