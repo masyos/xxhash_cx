@@ -1,7 +1,7 @@
 # xxhash_cx
 
 [xxHash](http://cyan4973.github.io/xxHash/)  
-C++14 constexpr version.
+C++ (C++14) constexpr version.
 
 I looked at the algorithm document and wrote it.  
 ref. [xxHash-specification (draft)](https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft))
@@ -28,8 +28,7 @@ void func()
 
 void func()
 {
-  using xxhash::operator""_xxh32;
-  using xxhash::operator""_xxh64;
+  using namespace xxhash::literals;
 
   xxhash::hash<32>::hash_type h32 = "text-hogehoge"_xxh32;
   xxhash::hash<64>::hash_type h64 = "text-hogehoge"_xxh64;
@@ -48,8 +47,7 @@ void func()
 
 #define STR_HOGE  "hogehoge"
 
-using xxhash::operator""_xxh32;
-using xxhash::operator""_xxh64;
+using namespace xxhash::literals;
 void func()
 {
   const xxhash::hash<32>::hash_type cx_h = STR_XXH32(STR_HOGE);
