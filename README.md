@@ -1,10 +1,11 @@
 # xxhash_cx
 
-[xxHash](http://cyan4973.github.io/xxHash/)  
+[xxHash](https://github.com/Cyan4973/xxHash)  
 C++ (C++14) constexpr version.
 
 I looked at the algorithm document and wrote it.  
-ref. [xxHash-specification (draft)](https://github.com/Cyan4973/xxHash/wiki/xxHash-specification-(draft))
+ref. xxHash-specification - (xxHash/doc/xxhash_spec.md) 
+
 
 ## usage
 
